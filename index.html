@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atombit | Google Cloud AI Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        :root {
+            --primary: #0a1128;
+            --secondary: #1c2541;
+            --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.5);
+            --text: #e0e0e0;
+            --text-light: #a0a0c0;
+            --card-bg: rgba(28, 37, 65, 0.7);
+            --border: rgba(0, 212, 255, 0.2);
+            --success: #00ff9d;
+        }
+
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 20%),
+                linear-gradient(to bottom, var(--primary), #050a1a);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2300d4ff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        /* Header & Navigation */
+        header {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: rgba(10, 17, 40, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            color: var(--accent);
+            font-size: 2rem;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent), #6a00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, var(--accent), #6a00ff);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 5rem 5% 8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #ffffff, var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .tech-badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .tech-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0.7rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .tech-badge:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .tech-badge i {
+            color: var(--accent);
+        }
+
+        /* Content Sections */
+        .section {
+            padding: 5rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+        }
+
+        .solution-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .solution-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solution-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--accent), #6a00ff);
+        }
+
+        .solution-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .card-desc {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-features {
+            list-style-type: none;
+        }
+
+        .card-features li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-features li::before {
+            content: '▸';
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Google Cloud Integration */
+        .gcloud-section {
+            background: rgba(28, 37, 65, 0.3);
+            border-radius: 15px;
+            padding: 3rem;
+            margin-top: 3rem;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .gcloud-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent), #6a00ff, #00d4ff);
+            border-radius: 17px;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .gcloud-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .gcloud-title i {
+            color: #4285F4;
+            font-size: 2.5rem;
+        }
+
+        .gcloud-products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .gcloud-product {
+            background: rgba(66, 133, 244, 0.1);
+            border: 1px solid rgba(66, 133, 244, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gcloud-product i {
+            color: #4285F4;
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(5, 10, 26, 0.9);
+            padding: 4rem 5% 2rem;
+            margin-top: 5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .footer-links {
+            list-style-type: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
+        }
+
+        .contact-item i {
+            color: var(--accent);
+            width: 20px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .solution-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .gcloud-section {
+                padding: 2rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-atom"></i>
+            </div>
+            <div class="logo-text">ATOMBIT</div>
+        </div>
+        <nav class="nav-links">
+            <a href="#solution">Solution</a>
+            <a href="#technology">Technology</a>
+            <a href="#integration">Integration</a>
+            <a href="#contact">Contact</a>
+        </nav>
+        <button class="cta-button pulse">Request Demo</button>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Atombit Experience Intelligence & AI Platform</h1>
+        <p class="hero-subtitle">
+            Built on <span class="highlight">Google Cloud</span> to deliver enterprise-grade AI, data analytics, and intelligence solutions that drive measurable ROI for large, complex organizations.
+        </p>
+        
+        <div class="tech-badges">
+            <div class="tech-badge">
+                <i class="fas fa-brain"></i>
+                <span>AI & Machine Learning</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-chart-line"></i>
+                <span>Data Analytics</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-comments"></i>
+                <span>Conversation Intelligence</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-cloud"></i>
+                <span>Google Cloud Native</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="section" id="solution">
+        <h2 class="section-title">Our Solution</h2>
+        <div class="solution-cards">
+            <div class="solution-card fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="card-title">Conversation Intelligence</h3>
+                <p class="card-desc">
+                    AI-powered analysis of customer interactions across channels using Google Cloud's Speech-to-Text and Natural Language AI to uncover insights that enhance service and improve experiences.
+                </p>
+                <ul class="card-features">
+                    <li>Real-time voice & text analysis</li>
+                    <li>Sentiment & intent detection</li>
+                    <li>Automated insight generation</li>
+                </ul>
+            </div>
+            
+            <div class="solution-card fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="card-title">Customer Feedback Management</h3>
+                <p class="card-desc">
+                    Capture and analyze customer and employee feedback using BigQuery for real-time data warehousing and Looker for embedded business intelligence dashboards.
+                </p>
+                <ul class="card-features">
+                    <li>Unified feedback aggregation</li>
+                    <li>Predictive trend analysis</li>
+                    <li>Actionable insight delivery</li>
+                </ul>
+            </div>
+            
+            <div class="solution-card fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3 class="card-title">AI/ML & Generative AI</h3>
+                <p class="card-desc">
+                    Leverage Vertex AI for custom machine learning and generative AI model development to enhance decision-making and deliver data-driven solutions for multiple business needs.
+                </p>
+                <ul class="card-features">
+                    <li>Custom ML model development</li>
+                    <li>Generative AI applications</li>
+                    <li>Predictive analytics</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Google Cloud Integration -->
+    <section class="section" id="integration">
+        <h2 class="section-title">Google Cloud Integration</h2>
+        <div class="gcloud-section fade-in">
+            <div class="gcloud-title">
+                <i class="fab fa-google"></i>
+                <span>Powered by Google Cloud</span>
+            </div>
+            <p>Our platform is built natively on Google Cloud's AI and data stack, ensuring scalability, security, and performance for enterprise deployments.</p>
+            
+            <div class="gcloud-products">
+                <div class="gcloud-product">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Vertex AI</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-search"></i>
+                    <span>BigQuery</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Looker</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-server"></i>
+                    <span>Google Kubernetes Engine</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-database"></i>
+                    <span>Cloud SQL</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-microphone"></i>
+                    <span>Speech-to-Text API</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-language"></i>
+                    <span>Natural Language API</span>
+                </div>
+                <div class="gcloud-product">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Google Workspace APIs</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="section" id="technology">
+        <h2 class="section-title">Our Methodology</h2>
+        <div class="solution-cards">
+            <div class="solution-card fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="card-title">Assess</h3>
+                <p class="card-desc">
+                    Define the As-Is Model. Problem statement definitions, desired outcomes, and alignment with key stakeholders.
+                </p>
+                <ul class="card-features">
+                    <li>Stakeholder alignment</li>
+                    <li>Problem definition</li>
+                    <li>Current state analysis</li>
+                </ul>
+            </div>
+            
+            <div class="solution-card fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-pencil-ruler"></i>
+                </div>
+                <h3 class="card-title">Design</h3>
+                <p class="card-desc">
+                    Define the To-be Model, potential and ideate solutions. Atombit solutions mapped to resolve problems and realize value anticipated outcomes.
+                </p>
+                <ul class="card-features">
+                    <li>Solution architecture</li>
+                    <li>Value realization mapping</li>
+                    <li>Implementation planning</li>
+                </ul>
+            </div>
+            
+            <div class="solution-card fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3 class="card-title">Deploy & Manage</h3>
+                <p class="card-desc">
+                    Data ETL, testing, results, insights and recommended solutions. Continuous ROI improvement from iterative ongoing process cycles.
+                </p>
+                <ul class="card-features">
+                    <li>Agile deployment</li>
+                    <li>Continuous optimization</li>
+                    <li>ROI tracking & reporting</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>ATOMBIT Ltd.</h3>
+                <p>Experience Intelligence, Data Analytics, and AI Solutions Provider enabling dramatic transformations for large, complicated enterprises.</p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>paolo@atombit.cloud</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-globe"></i>
+                        <span>atombit.cloud</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Solutions</h3>
+                <ul class="footer-links">
+                    <li><a href="#solution">Conversation Intelligence</a></li>
+                    <li><a href="#solution">Customer Feedback Management</a></li>
+                    <li><a href="#solution">AI/ML Solutions</a></li>
+                    <li><a href="#solution">Generative AI</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Company</h3>
+                <ul class="footer-links">
+                    <li><a href="#integration">Google Cloud Partnership</a></li>
+                    <li><a href="#technology">Our Methodology</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#contact">Request Demo</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Target Industries</h3>
+                <ul class="footer-links">
+                    <li>Financial Services</li>
+                    <li>Healthcare & Life Sciences</li>
+                    <li>Retail & Wholesale</li>
+                    <li>Industrial Manufacturing</li>
+                    <li>Telecommunications</li>
+                    <li>Business & Professional Services</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2023 ATOMBIT Ltd. | Experience Intelligence & AI Platform | Built on Google Cloud</p>
+            <p>Large Enterprise Focus | 3 Years in Business | Strategic AI Solutions</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const fadeInOnScroll = function() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            };
+            
+            // Check on load
+            fadeInOnScroll();
+            
+            // Check on scroll
+            window.addEventListener('scroll', fadeInOnScroll);
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // CTA button click
+            document.querySelector('.cta-button').addEventListener('click', function() {
+                alert('Thank you for your interest in ATOMBIT! Our team will contact you shortly to schedule a demo.');
+            });
+        });
+    </script>
+</body>
+</html>
